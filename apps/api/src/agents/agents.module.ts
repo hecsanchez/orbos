@@ -5,6 +5,8 @@ import { InteractionValidatorService } from '../interactions/interaction-validat
 import { RagModule } from '../rag/rag.module';
 import { SafetyAgent } from './safety/safety.agent';
 import { LessonDesignerAgent } from './lessons/lesson-designer.agent';
+import { MasteryEstimatorAgent } from './mastery/mastery-estimator.agent';
+import { PracticeGeneratorAgent } from './practice/practice-generator.agent';
 
 @Module({
   imports: [RagModule],
@@ -14,12 +16,16 @@ import { LessonDesignerAgent } from './lessons/lesson-designer.agent';
     InteractionValidatorService,
     SafetyAgent,
     LessonDesignerAgent,
+    MasteryEstimatorAgent,
+    PracticeGeneratorAgent,
   ],
   exports: [
     LLMClient,
     PromptTemplateService,
     SafetyAgent,
     LessonDesignerAgent,
+    MasteryEstimatorAgent,
+    PracticeGeneratorAgent,
   ],
 })
 export class AgentsModule {}

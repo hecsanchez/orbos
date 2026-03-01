@@ -9,6 +9,7 @@ import { PhenomenaModule } from '../phenomena/phenomena.module';
 import { EvidenceModule } from '../evidence/evidence.module';
 import { AgentsModule } from '../agents/agents.module';
 import { OrchestratorModule } from '../orchestrator/orchestrator.module';
+import { PracticeModule } from '../practice/practice.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { OrchestratorModule } from '../orchestrator/orchestrator.module';
     EvidenceModule,
     AgentsModule,
     OrchestratorModule,
+    PracticeModule,
   ],
   controllers: [AppController],
 })
