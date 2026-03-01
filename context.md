@@ -1,5 +1,5 @@
-# AI LEARNING OS — iPad Edition
-## Coding Agent Context Document | v1.3
+# ORBOS — iPad Edition
+## Coding Agent Context Document | v1.5
 **Mexican SEP Primary Curriculum • Finnish Pedagogy • Adaptive AI**
 Target: March 27, 2025 | Pilot: 5–10 children | All decisions locked as of Feb 28, 2025
 
@@ -7,7 +7,7 @@ Target: March 27, 2025 | Pilot: 5–10 children | All decisions locked as of Feb
 
 ## 1. Purpose of This Document
 
-Authoritative reference for all coding agents building the AI Learning OS. Read this before writing any code. Every implementation decision is traceable to this document.
+Authoritative reference for all coding agents building Orbos. Read this before writing any code. Every implementation decision is traceable to this document.
 
 > **Context:** A tablet-based adaptive learning OS for Mexican primary school children (ages 5–11). SEP curriculum. Finnish phenomenon-based pedagogy. Production-ready for daily family use by March 27, 2025. Pilot: 5–10 children.
 
@@ -32,7 +32,7 @@ These decisions are final. Do not deviate. Flag concerns — do not silently wor
 
 | Decision | Chosen Approach |
 |---|---|
-| **Backend** | Single Node.js app (TypeScript). All 6 AI agents are modular TS classes in one repo. No microservices. Framework: Hono or Express. |
+| **Backend** | Single Node.js app (TypeScript). All 6 AI agents are modular TS classes in one repo. No microservices. Framework: NestJS. |
 | **LLM Provider** | Both Claude + OpenAI via LLMClient abstraction class. Switch via config flag. Default: Claude. |
 | **iPad Audio** | AVSpeechSynthesizer, locale es-MX. Works fully offline. No pre-recorded audio files. |
 | **SEP Standards** | Parse from official PDFs → structured JSON → PostgreSQL + RAG. Day 1–2 priority. |
@@ -81,12 +81,13 @@ These decisions are final. Do not deviate. Flag concerns — do not silently wor
 
 | | |
 |---|---|
-| **Platform** | iPadOS, SwiftUI. Target iOS 16+. |
-| **Audio** | AVSpeechSynthesizer, es-MX. All instructions narrated. Fully offline. |
-| **Local storage** | SQLite. Stores: daily plan, lesson scripts, attempt queue, evidence files. |
-| **Evidence capture** | Camera (photo) + microphone (audio explanation). Uploaded to S3 on sync. Used for phenomenon evidence capture only — not mid-lesson. |
+| **Platform** | iPad (iOS 16+). Built with Expo (React Native + TypeScript). NX-managed. |
+| **Audio** | `expo-speech`, locale es-MX. All instructions narrated. Fully offline. |
+| **Local storage** | `expo-sqlite`. Stores: daily plan, lesson scripts, attempt queue, evidence files. |
+| **Evidence capture** | `expo-camera` (photo) + `expo-av` (audio). Uploaded to R2 on sync. Used for phenomenon evidence capture only — not mid-lesson. |
 | **Offline** | Full session in airplane mode. No feature requires internet mid-session. |
 | **Phenomenon role** | Evidence capture screen only — opened by guide at end of facilitated session. NOT a lesson renderer. |
+| **Testing** | Detox for E2E UI automation. |
 
 **Core modules:** Identity Module → Session Engine → Interaction Renderer → Audio Engine (TTS) → Evidence Capture → Offline Cache → Telemetry
 
@@ -110,13 +111,14 @@ These decisions are final. Do not deviate. Flag concerns — do not silently wor
 
 | | |
 |---|---|
-| **Framework** | Node.js + TypeScript. Hono (preferred) or Express. Single app, modular agent classes. |
-| **ORM** | Drizzle or Prisma for PostgreSQL. |
+| **Framework** | Node.js + TypeScript. NestJS. Single app, modular agent classes. |
+| **ORM** | Drizzle for PostgreSQL. |
+| **Deploy** | Railway or Render (not Cloudflare Workers — incompatible with persistent DB connections and long-running agents). |
 | **DB** | PostgreSQL + Redis (cache). |
 | **Storage** | S3-compatible (default: Cloudflare R2) for evidence files. |
 | **AI** | LLMClient class wrapping Anthropic + OpenAI Node SDKs. Prompt templates versioned in DB. |
 | **RAG** | OpenAI embeddings API or `@xenova/transformers` for local embeddings. pgvector for similarity search. |
-| **Monorepo** | NX workspace. All 4 apps live under `apps/`. NX manages `api/`, `parent/`, `studio/` build tasks. `ipad/` lives in `apps/ipad/` but is managed by Xcode, not NX. |
+| **Monorepo** | NX workspace. All 4 apps live under `apps/`. NX manages `api/`, `parent/`, `studio/`, and `ipad/` (Expo). Single language (TypeScript) across the entire stack. |
 
 ---
 
@@ -133,7 +135,7 @@ These decisions are final. Do not deviate. Flag concerns — do not silently wor
 | `ordering` | Arrange shuffled items into correct sequence. |
 | `build_object` | Assemble components into a target structure. |
 | `slider` | Adjust a numeric value along a labelled scale. |
-| `draw_canvas` | Free draw or trace using PencilKit. (Can defer post-MVP if needed.) |
+| `match_connect` | Drag a line from left card to matching right card. Snap on release. Used for word-image pairs, term-definition, Spanish-number matching. |
 | `audio_explain` | Child records spoken explanation. Saved as evidence linked to standard. Used in phenomenon evidence capture. |
 | `confidence_check` | 3-level self-report (not sure / kind of / very sure). Before + after activity. |
 
@@ -304,7 +306,7 @@ captured_at     TIMESTAMP
 
 ### Not Required for March 27
 - In-app phenomenon renderer (phenomena are facilitated externally)
-- `draw_canvas`, `build_object`, `slider`, `audio_explain` as lesson components (audio_explain used only for evidence capture)
+- `draw_canvas` removed — replaced by `match_connect` (left/right card matching, fully Expo-compatible)
 - Full 100% SEP standards depth
 - Advanced mastery modeling (IRT, BKT)
 - Real-time dashboard, push notifications, AI-generated graphics
@@ -318,7 +320,7 @@ Follow this order. Each step unblocks the next. **Critical path items marked �
 1. 🔴 SEP PDF parsing → structured JSON + seed SQL (Day 1–2)
 2. 🔴 PostgreSQL schema + Node.js API skeleton + Docker-compose (Day 3–4)
 3. RAG index + LLMClient abstraction + interaction JSON schemas (Day 4–5)
-4. SwiftUI project + TTS wrapper + SQLite + navigation shell (Day 7)
+4. Expo project setup + `expo-speech` TTS wrapper + `expo-sqlite` + navigation shell (Day 7)
 5. 🔴 Safety Agent + Lesson Generator Agent (Day 8–9)
 6. Mastery Estimator Agent with source field weighting (Day 10)
 7. 🔴 First 3 iPad components: story_card, multiple_choice, drag_drop (Day 11–13)
@@ -356,4 +358,4 @@ Follow this order. Each step unblocks the next. **Critical path items marked �
 
 ---
 
-*v1.3 — Switched backend from Python/FastAPI to Node.js/TypeScript. Added NX monorepo structure. All 4 apps under `apps/`. AI Learning OS. Coding agent use only.*
+*v1.5 — Switched API framework from Hono to NestJS. Locked Drizzle as ORM. Added deployment target (Railway/Render). Orbos. Coding agent use only.*

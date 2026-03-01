@@ -8,6 +8,24 @@
     },
     {
       "path": "./apps/parent"
+    },
+    {
+      "path": "./apps/studio-e2e"
+    },
+    {
+      "path": "./apps/studio"
+    },
+    {
+      "path": "./apps/api-e2e"
+    },
+    {
+      "path": "./apps/api"
+    },
+    {
+      "path": "./apps/ipad"
+    },
+    {
+      "path": "./packages/types"
     }
   ]
 }
