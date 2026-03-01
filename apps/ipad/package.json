@@ -2,10 +2,12 @@
   "name": "@orbos/ipad",
   "version": "0.0.1",
   "private": true,
+  "main": "index.js",
   "scripts": {
     "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . apps/ipad"
   },
   "dependencies": {
+    "@orbos/types": "workspace:*",
     "@expo/metro-config": "*",
     "@testing-library/react-native": "*",
     "expo": "*",
