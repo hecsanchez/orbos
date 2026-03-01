@@ -142,6 +142,20 @@ export const prompts = pgTable('prompts', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+// ── Safety Logs ───────────────────────────────────
+
+export const safetyLogs = pgTable('safety_logs', {
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  contentType: varchar('content_type', { length: 50 }).notNull(),
+  contentId: uuid('content_id'),
+  passed: boolean('passed').notNull(),
+  flags: jsonb('flags').notNull().default(sql`'[]'::jsonb`),
+  attemptNumber: integer('attempt_number').notNull().default(1),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
 // ── Evidence ───────────────────────────────────────
 
 export const evidence = pgTable('evidence', {

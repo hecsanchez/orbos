@@ -2,19 +2,19 @@ import { Controller, Post, Body } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { GenerateLessonDto } from './dto/generate-lesson.dto';
 import { LessonScriptResponseDto } from './dto/lesson-script-response.dto';
+import { LessonDesignerAgent } from '../agents/lessons/lesson-designer.agent';
 
 @ApiTags('lessons')
 @Controller('lessons')
 export class LessonsController {
+  constructor(private readonly lessonDesigner: LessonDesignerAgent) {}
+
   @Post('generate')
   @ApiOperation({ summary: 'Generate a lesson script for a standard' })
-  generate(@Body() dto: GenerateLessonDto): LessonScriptResponseDto {
-    return {
-      id: '00000000-0000-0000-0000-000000000000',
+  async generate(@Body() dto: GenerateLessonDto): Promise<LessonScriptResponseDto> {
+    return this.lessonDesigner.generate({
       standard_id: dto.standard_id,
-      script: [],
-      safety_approved: false,
-      admin_approved: false,
-    };
+      student_age: dto.student_age,
+    });
   }
 }

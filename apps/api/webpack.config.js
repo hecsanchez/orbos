@@ -15,7 +15,14 @@ module.exports = {
       compiler: 'tsc',
       main: './src/main.ts',
       tsConfig: './tsconfig.app.json',
-      assets: ['./src/assets'],
+      assets: [
+        './src/assets',
+        {
+          input: './src/interactions/schemas',
+          glob: '**/*.json',
+          output: 'schemas',
+        },
+      ],
       optimization: false,
       outputHashing: 'none',
       generatePackageJson: false,

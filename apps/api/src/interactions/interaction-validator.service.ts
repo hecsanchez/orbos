@@ -61,6 +61,19 @@ export class InteractionValidatorService {
     return map;
   }
 
+  getSchemaReference(components: string[]): string {
+    return components
+      .filter((name) => this.schemas.has(name))
+      .map((name) => {
+        const schema = this.schemas.get(name)!;
+        const props = Object.entries(schema.props)
+          .map(([k, v]) => `    ${k}: ${v.type}${schema.required.includes(k) ? ' (REQUIRED)' : ''}`)
+          .join('\n');
+        return `${name}:\n${props}`;
+      })
+      .join('\n\n');
+  }
+
   validate(interaction: Interaction): ValidationResult {
     const errors: string[] = [];
     const { component, props } = interaction;
