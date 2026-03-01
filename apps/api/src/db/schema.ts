@@ -156,6 +156,30 @@ export const safetyLogs = pgTable('safety_logs', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+// ── Daily Plans ───────────────────────────────────
+
+export const dailyPlans = pgTable(
+  'daily_plans',
+  {
+    id: uuid('id')
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: uuid('student_id')
+      .notNull()
+      .references(() => students.id),
+    date: varchar('date', { length: 10 }).notNull(),
+    planJson: jsonb('plan_json').notNull(),
+    generatedAt: timestamp('generated_at').notNull().defaultNow(),
+  },
+  (table) => [
+    {
+      name: 'daily_plans_student_date_unique',
+      columns: [table.studentId, table.date],
+      unique: true,
+    },
+  ],
+);
+
 // ── Evidence ───────────────────────────────────────
 
 export const evidence = pgTable('evidence', {
