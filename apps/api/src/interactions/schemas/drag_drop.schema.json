@@ -1,0 +1,12 @@
+{
+  "component": "drag_drop",
+  "version": 1,
+  "props": {
+    "instruction": { "type": "string", "maxLength": 200 },
+    "tts_text": { "type": "string", "maxLength": 400 },
+    "items": { "type": "array", "maxItems": 10 },
+    "targets": { "type": "array", "maxItems": 10 },
+    "correct_mapping": { "type": "object" }
+  },
+  "required": ["instruction", "tts_text", "items", "targets", "correct_mapping"]
+}

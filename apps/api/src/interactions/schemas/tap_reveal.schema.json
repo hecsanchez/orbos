@@ -1,0 +1,11 @@
+{
+  "component": "tap_reveal",
+  "version": 1,
+  "props": {
+    "prompt": { "type": "string", "maxLength": 200 },
+    "hidden_text": { "type": "string", "maxLength": 300 },
+    "tts_text": { "type": "string", "maxLength": 400 },
+    "reveal_label": { "type": "string", "maxLength": 30 }
+  },
+  "required": ["prompt", "hidden_text", "tts_text"]
+}

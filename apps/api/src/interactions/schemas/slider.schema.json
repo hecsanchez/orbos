@@ -1,0 +1,14 @@
+{
+  "component": "slider",
+  "version": 1,
+  "props": {
+    "question": { "type": "string", "maxLength": 200 },
+    "tts_text": { "type": "string", "maxLength": 400 },
+    "min": { "type": "number" },
+    "max": { "type": "number" },
+    "step": { "type": "number" },
+    "correct_value": { "type": "number" },
+    "unit_label": { "type": "string", "maxLength": 30 }
+  },
+  "required": ["question", "tts_text", "min", "max", "correct_value"]
+}

@@ -1,0 +1,12 @@
+{
+  "component": "match_connect",
+  "version": 1,
+  "props": {
+    "instruction": { "type": "string", "maxLength": 200 },
+    "tts_text": { "type": "string", "maxLength": 400 },
+    "left_items": { "type": "array", "minItems": 2, "maxItems": 8 },
+    "right_items": { "type": "array", "minItems": 2, "maxItems": 8 },
+    "correct_pairs": { "type": "array" }
+  },
+  "required": ["instruction", "tts_text", "left_items", "right_items", "correct_pairs"]
+}

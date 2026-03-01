@@ -1,0 +1,11 @@
+{
+  "component": "audio_explain",
+  "version": 1,
+  "props": {
+    "prompt": { "type": "string", "maxLength": 300 },
+    "tts_text": { "type": "string", "maxLength": 400 },
+    "max_duration_seconds": { "type": "number" },
+    "linked_standard_id": { "type": "string", "maxLength": 50 }
+  },
+  "required": ["prompt", "tts_text"]
+}

@@ -130,6 +130,18 @@ export const phenomenonProposals = pgTable('phenomenon_proposals', {
   approvedAt: timestamp('approved_at'),
 });
 
+// ── Prompts ───────────────────────────────────────
+
+export const prompts = pgTable('prompts', {
+  id: uuid('id')
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  name: varchar('name', { length: 255 }).unique().notNull(),
+  template: text('template').notNull(),
+  version: integer('version').notNull().default(1),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+});
+
 // ── Evidence ───────────────────────────────────────
 
 export const evidence = pgTable('evidence', {

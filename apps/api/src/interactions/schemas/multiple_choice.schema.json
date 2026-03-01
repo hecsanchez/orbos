@@ -1,0 +1,13 @@
+{
+  "component": "multiple_choice",
+  "version": 1,
+  "props": {
+    "question": { "type": "string", "maxLength": 200 },
+    "tts_text": { "type": "string", "maxLength": 400 },
+    "options": { "type": "array", "minItems": 2, "maxItems": 4 },
+    "correct_index": { "type": "number" },
+    "feedback_correct": { "type": "string", "maxLength": 200 },
+    "feedback_incorrect": { "type": "string", "maxLength": 200 }
+  },
+  "required": ["question", "tts_text", "options", "correct_index"]
+}

@@ -1,0 +1,11 @@
+{
+  "component": "story_card",
+  "version": 1,
+  "props": {
+    "title": { "type": "string", "maxLength": 60 },
+    "body": { "type": "string", "maxLength": 400 },
+    "tts_text": { "type": "string", "maxLength": 400 },
+    "continue_label": { "type": "string", "maxLength": 30 }
+  },
+  "required": ["title", "body", "tts_text"]
+}
