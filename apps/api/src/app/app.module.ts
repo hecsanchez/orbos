@@ -1,10 +1,25 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { StudentsModule } from '../students/students.module';
+import { StandardsModule } from '../standards/standards.module';
+import { LessonsModule } from '../lessons/lessons.module';
+import { AttemptsModule } from '../attempts/attempts.module';
+import { MasteryModule } from '../mastery/mastery.module';
+import { PhenomenaModule } from '../phenomena/phenomena.module';
+import { EvidenceModule } from '../evidence/evidence.module';
+import { AgentsModule } from '../agents/agents.module';
 
 @Module({
-  imports: [],
+  imports: [
+    StudentsModule,
+    StandardsModule,
+    LessonsModule,
+    AttemptsModule,
+    MasteryModule,
+    PhenomenaModule,
+    EvidenceModule,
+    AgentsModule,
+  ],
   controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}

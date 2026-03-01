@@ -64,15 +64,15 @@
           "build"
         ],
         "options": {
-          "buildTarget": "api:build",
+          "buildTarget": "@orbos/api:build",
           "runBuildTargetDependencies": false
         },
         "configurations": {
           "development": {
-            "buildTarget": "api:build:development"
+            "buildTarget": "@orbos/api:build:development"
           },
           "production": {
-            "buildTarget": "api:build:production"
+            "buildTarget": "@orbos/api:build:production"
           }
         }
       },
@@ -85,13 +85,19 @@
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
+    "@nestjs/config": "^4.0.3",
     "@nestjs/core": "^11.0.0",
     "@nestjs/platform-express": "^11.0.0",
+    "drizzle-orm": "^0.45.1",
+    "pg": "^8.19.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "@nestjs/testing": "^11.0.0"
+    "@nestjs/testing": "^11.0.0",
+    "@types/pg": "^8.18.0",
+    "dotenv": "^17.3.1",
+    "drizzle-kit": "^0.31.9"
   }
 }

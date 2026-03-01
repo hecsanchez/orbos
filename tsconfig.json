@@ -4,19 +4,10 @@
   "files": [],
   "references": [
     {
-      "path": "./apps/parent-e2e"
-    },
-    {
       "path": "./apps/parent"
     },
     {
-      "path": "./apps/studio-e2e"
-    },
-    {
       "path": "./apps/studio"
-    },
-    {
-      "path": "./apps/api-e2e"
     },
     {
       "path": "./apps/api"
@@ -26,6 +17,15 @@
     },
     {
       "path": "./packages/types"
+    },
+    {
+      "path": "./e2e/parent-e2e"
+    },
+    {
+      "path": "./e2e/studio-e2e"
+    },
+    {
+      "path": "./e2e/api-e2e"
     }
   ]
 }

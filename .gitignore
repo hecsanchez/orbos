@@ -64,3 +64,7 @@ cache/
 
 
 vitest.config.*.timestamp*
+
+# Environment
+.env
+.env.local
