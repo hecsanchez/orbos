@@ -8,6 +8,7 @@ import { MasteryModule } from '../mastery/mastery.module';
 import { PhenomenaModule } from '../phenomena/phenomena.module';
 import { EvidenceModule } from '../evidence/evidence.module';
 import { AgentsModule } from '../agents/agents.module';
+import { OrchestratorModule } from '../orchestrator/orchestrator.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { AgentsModule } from '../agents/agents.module';
     PhenomenaModule,
     EvidenceModule,
     AgentsModule,
+    OrchestratorModule,
   ],
   controllers: [AppController],
 })
