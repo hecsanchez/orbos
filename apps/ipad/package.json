@@ -7,8 +7,8 @@
     "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . apps/ipad"
   },
   "dependencies": {
-    "@orbos/types": "workspace:*",
     "@expo/metro-config": "*",
+    "@orbos/types": "workspace:*",
     "@testing-library/react-native": "*",
     "expo": "*",
     "expo-splash-screen": "*",
@@ -19,6 +19,8 @@
     "metro-resolver": "*",
     "react": "*",
     "react-native": "*",
+    "react-native-gesture-handler": "^2.30.0",
+    "react-native-reanimated": "^4.2.2",
     "react-native-svg": "*",
     "react-native-svg-transformer": "*",
     "react-native-web": "*"

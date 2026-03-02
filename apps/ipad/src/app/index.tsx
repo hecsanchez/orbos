@@ -1,45 +1,71 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { tts } from '../services/tts.service';
+import { apiClient } from '../services/api-client';
+import type { StudentResponseDto } from '@orbos/types';
 
-const PROFILES = [
-  { id: '1', name: 'Sofía', age: 6, grade: 1, emoji: '🦋' },
-  { id: '2', name: 'Mateo', age: 8, grade: 4, emoji: '🚀' },
-  { id: '3', name: 'Valentina', age: 11, grade: 6, emoji: '🌟' },
-];
+const EMOJIS = ['🦋', '🚀', '🌟', '🐙', '🌈'];
 
 export default function ProfileSelector() {
   const router = useRouter();
+  const [students, setStudents] = useState<StudentResponseDto[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     tts.speak('Elige tu perfil para comenzar');
+
+    apiClient
+      .getStudents()
+      .then(setStudents)
+      .catch((err) => {
+        console.warn('Failed to fetch students, using fallback:', err);
+        // Fallback to hardcoded profiles matching seeded data
+        setStudents([
+          { id: '54fbe0d9', name: 'Ana', age: 5, grade_target: 1, interests: ['animales'] },
+          { id: '937f13bc', name: 'Miguel', age: 8, grade_target: 3, interests: ['dinosaurios'] },
+          { id: 'b07d2cc1', name: 'Sofia', age: 11, grade_target: 5, interests: ['naturaleza'] },
+        ]);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  function handleSelect(profile: (typeof PROFILES)[number]) {
+  function handleSelect(student: StudentResponseDto) {
     tts.stop();
-    router.push('/(session)/lesson');
+    router.push({
+      pathname: '/(session)/lesson',
+      params: { studentId: student.id, studentName: student.name, studentAge: String(student.age) },
+    });
+  }
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#6C63FF" />
+      </View>
+    );
   }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>¿Quién eres hoy?</Text>
       <View style={styles.profiles}>
-        {PROFILES.map((profile) => (
+        {students.map((student, idx) => (
           <TouchableOpacity
-            key={profile.id}
+            key={student.id}
             style={styles.card}
-            onPress={() => handleSelect(profile)}
+            onPress={() => handleSelect(student)}
             activeOpacity={0.8}
           >
-            <Text style={styles.avatar}>{profile.emoji}</Text>
-            <Text style={styles.name}>{profile.name}</Text>
-            <Text style={styles.age}>{profile.age} años</Text>
+            <Text style={styles.avatar}>{EMOJIS[idx % EMOJIS.length]}</Text>
+            <Text style={styles.name}>{student.name}</Text>
+            <Text style={styles.age}>{student.age} años</Text>
           </TouchableOpacity>
         ))}
       </View>

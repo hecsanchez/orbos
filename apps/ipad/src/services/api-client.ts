@@ -5,6 +5,7 @@ import type {
   LogAttemptDto,
   AttemptResponseDto,
   MasteryResponseDto,
+  InteractionBlock,
 } from '@orbos/types';
 
 const API_URL =
@@ -55,6 +56,12 @@ class ApiClient {
         student_age: studentAge,
       }),
     });
+  }
+
+  async getLessonScriptById(
+    scriptId: string,
+  ): Promise<LessonScriptResponseDto> {
+    return this.request(`/lessons/${scriptId}`);
   }
 
   async logAttempt(attempt: LogAttemptDto): Promise<AttemptResponseDto> {

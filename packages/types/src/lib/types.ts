@@ -83,18 +83,38 @@ export interface MasteryResponseDto {
   recommendation: 'advance' | 'practice' | 'reteach';
 }
 
+// ── Interactions ──────────────────────────────────
+
+export interface InteractionBlock {
+  component: string;
+  props: Record<string, unknown>;
+  tts_text: string;
+}
+
+export interface AttemptResult {
+  component: string;
+  correct: boolean;
+  hint_used: boolean;
+  time_spent_seconds: number;
+}
+
 // ── Orchestrator ───────────────────────────────────
 
 export interface PlanItemDto {
   standard_id: string;
-  type: 'lesson' | 'practice' | 'phenomenon_evidence';
+  standard_description: string;
+  subject: string;
+  grade: number;
+  type: 'lesson' | 'practice' | 'phenomenon_evidence' | 'break';
   estimated_minutes: number;
+  lesson_script_id?: string;
 }
 
 export interface OrchestratorPlanDto {
   student_id: string;
   date: string;
-  plan: PlanItemDto[];
+  total_minutes: number;
+  items: PlanItemDto[];
 }
 
 // ── Phenomena ──────────────────────────────────────
