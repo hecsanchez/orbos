@@ -8,6 +8,7 @@ import { LessonDesignerAgent } from './lessons/lesson-designer.agent';
 import { MasteryEstimatorAgent } from './mastery/mastery-estimator.agent';
 import { PracticeGeneratorAgent } from './practice/practice-generator.agent';
 import { OrchestratorAgent } from './orchestrator/orchestrator.agent';
+import { PhenomenonDesignerAgent } from './phenomenon/phenomenon-designer.agent';
 
 @Module({
   imports: [RagModule],
@@ -20,6 +21,7 @@ import { OrchestratorAgent } from './orchestrator/orchestrator.agent';
     MasteryEstimatorAgent,
     PracticeGeneratorAgent,
     OrchestratorAgent,
+    PhenomenonDesignerAgent,
   ],
   exports: [
     LLMClient,
@@ -29,6 +31,7 @@ import { OrchestratorAgent } from './orchestrator/orchestrator.agent';
     MasteryEstimatorAgent,
     PracticeGeneratorAgent,
     OrchestratorAgent,
+    PhenomenonDesignerAgent,
   ],
 })
 export class AgentsModule {}

@@ -108,6 +108,7 @@ export interface PlanItemDto {
   type: 'lesson' | 'practice' | 'phenomenon_evidence' | 'break';
   estimated_minutes: number;
   lesson_script_id?: string;
+  phenomenon_id?: string;
 }
 
 export interface OrchestratorPlanDto {
@@ -138,6 +139,18 @@ export interface PhenomenonResponseDto {
   status: 'pending' | 'approved' | 'completed';
   approved_by: string | null;
   approved_at: string | null;
+}
+
+// ── Safety Logs ───────────────────────────────────
+
+export interface SafetyLogResponseDto {
+  id: string;
+  content_type: string;
+  content_id: string | null;
+  passed: boolean;
+  flags: string[];
+  attempt_number: number;
+  created_at: string;
 }
 
 // ── Evidence ───────────────────────────────────────

@@ -10,6 +10,7 @@ import { EvidenceModule } from '../evidence/evidence.module';
 import { AgentsModule } from '../agents/agents.module';
 import { OrchestratorModule } from '../orchestrator/orchestrator.module';
 import { PracticeModule } from '../practice/practice.module';
+import { SafetyLogModule } from '../safety/safety-log.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { PracticeModule } from '../practice/practice.module';
     AgentsModule,
     OrchestratorModule,
     PracticeModule,
+    SafetyLogModule,
   ],
   controllers: [AppController],
 })

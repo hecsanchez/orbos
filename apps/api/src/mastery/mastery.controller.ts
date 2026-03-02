@@ -73,4 +73,27 @@ export class MasteryController {
       reasoning: attemptCount === 0 ? 'No attempts recorded yet.' : undefined,
     };
   }
+
+  @Get('student/:studentId')
+  @ApiOperation({ summary: 'Get all mastery states for a student' })
+  async listByStudent(@Param('studentId') studentId: string) {
+    const rows = await db
+      .select()
+      .from(masteryState)
+      .where(eq(masteryState.studentId, studentId));
+
+    return rows.map((r) => ({
+      student_id: r.studentId,
+      standard_id: r.standardId,
+      mastery_level: r.masteryLevel,
+      confidence_score: r.confidenceScore,
+      has_direct_lesson_attempt: r.hasDirectLessonAttempt,
+      recommendation:
+        r.masteryLevel >= 0.8 && r.hasDirectLessonAttempt
+          ? 'advance'
+          : r.masteryLevel >= 0.5
+            ? 'practice'
+            : 'reteach',
+    }));
+  }
 }
