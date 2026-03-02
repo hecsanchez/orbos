@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface DragDropItem {
   id: string;
@@ -28,7 +28,7 @@ export interface DragDropProps {
   items: DragDropItem[];
   targets: DragDropTarget[];
   hint_text?: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -47,10 +47,10 @@ export function DragDrop({
   items,
   targets,
   hint_text,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: DragDropProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const [canInteract, setCanInteract] = useState(false);
   const [placements, setPlacements] = useState<Placement[]>([]);
   const [lockedItems, setLockedItems] = useState<Set<string>>(new Set());

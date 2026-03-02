@@ -8,7 +8,7 @@ import {
   PanResponder,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface OrderingItem {
   id: string;
@@ -21,7 +21,7 @@ export interface OrderingProps {
   tts_text: string;
   items: OrderingItem[];
   hint_text?: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -50,10 +50,10 @@ export function Ordering({
   tts_text,
   items: rawItems,
   hint_text,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: OrderingProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   // Max 5 items
   const capped = rawItems.slice(0, 5);
   const [orderedItems, setOrderedItems] = useState(() => shuffleUntilDifferent(capped));

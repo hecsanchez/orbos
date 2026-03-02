@@ -1,5 +1,6 @@
 import type {
   StudentResponseDto,
+  CreateStudentDto,
   OrchestratorPlanDto,
   LessonScriptResponseDto,
   LogAttemptDto,
@@ -39,6 +40,13 @@ class ApiClient {
 
   async getStudents(): Promise<StudentResponseDto[]> {
     return this.request('/students');
+  }
+
+  async createStudent(dto: CreateStudentDto): Promise<StudentResponseDto> {
+    return this.request('/students', {
+      method: 'POST',
+      body: JSON.stringify(dto),
+    });
   }
 
   async getDailyPlan(studentId: string): Promise<OrchestratorPlanDto> {

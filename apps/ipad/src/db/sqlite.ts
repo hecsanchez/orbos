@@ -8,6 +8,19 @@ export async function initDatabase(): Promise<SQLite.SQLiteDatabase> {
   db = await SQLite.openDatabaseAsync('orbos.db');
 
   await db.execAsync(`
+    CREATE TABLE IF NOT EXISTS profiles (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      age INTEGER NOT NULL,
+      grade_target INTEGER NOT NULL,
+      interests TEXT NOT NULL DEFAULT '[]',
+      avatar_id TEXT NOT NULL,
+      accent_color TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      last_used_at TEXT NOT NULL DEFAULT (datetime('now')),
+      synced INTEGER NOT NULL DEFAULT 0
+    );
+
     CREATE TABLE IF NOT EXISTS daily_plan (
       id TEXT PRIMARY KEY,
       student_id TEXT NOT NULL,

@@ -7,7 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface MatchConnectLeftItem {
   id: string;
@@ -26,7 +26,7 @@ export interface MatchConnectProps {
   left_items: MatchConnectLeftItem[];
   right_items: MatchConnectRightItem[];
   hint_text?: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -54,10 +54,10 @@ export function MatchConnect({
   left_items: rawLeft,
   right_items: rawRight,
   hint_text,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: MatchConnectProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   // Max 4 pairs
   const leftItems = rawLeft.slice(0, 4);
   const rightItemsAll = rawRight.slice(0, 4);

@@ -57,7 +57,6 @@ export default function LessonScreen() {
     <LessonItem
       key={`item-${session.currentItemIndex}`}
       studentId={student.id}
-      studentAge={student.age}
       standardId={currentItem.standard_id}
       lessonScriptId={currentItem.lesson_script_id}
     />
@@ -68,12 +67,10 @@ export default function LessonScreen() {
 
 function LessonItem({
   studentId,
-  studentAge,
   standardId,
   lessonScriptId,
 }: {
   studentId: string;
-  studentAge: number;
   standardId: string;
   lessonScriptId?: string;
 }) {
@@ -137,7 +134,6 @@ function LessonItem({
       script={script}
       studentId={studentId}
       standardId={standardId}
-      studentAge={studentAge}
       onComplete={handleComplete}
     />
   );

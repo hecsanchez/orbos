@@ -7,14 +7,14 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface TapRevealProps {
   prompt: string;
   tts_text_before: string;
   revealed_content: string;
   tts_text_after: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: () => void;
 }
 
@@ -23,10 +23,10 @@ export function TapReveal({
   tts_text_before,
   revealed_content,
   tts_text_after,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: TapRevealProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const [canTap, setCanTap] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [canContinue, setCanContinue] = useState(false);

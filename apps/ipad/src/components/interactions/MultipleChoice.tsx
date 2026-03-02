@@ -7,7 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface MultipleChoiceOption {
   id: string;
@@ -20,7 +20,7 @@ export interface MultipleChoiceProps {
   tts_text: string;
   options: MultipleChoiceOption[];
   hint_text?: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -42,10 +42,10 @@ export function MultipleChoice({
   tts_text,
   options,
   hint_text,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: MultipleChoiceProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const [shuffledOptions] = useState(() => shuffleArray(options));
   const [canInteract, setCanInteract] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);

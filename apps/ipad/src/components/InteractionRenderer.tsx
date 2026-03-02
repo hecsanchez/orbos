@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import type { InteractionBlock, AttemptResult } from '@orbos/types';
 import { INTERACTION_COMPONENTS, type ComponentName } from './interactions';
+import { useProfile } from '../context/profile.context';
 
 /**
  * INTERACTION DESIGN PRINCIPLES — DO NOT OVERRIDE
@@ -16,7 +17,6 @@ export interface InteractionRendererProps {
   script: InteractionBlock[];
   studentId: string;
   standardId: string;
-  studentAge?: number;
   onComplete: (attempts: AttemptResult[]) => void;
 }
 
@@ -25,9 +25,9 @@ export function InteractionRenderer({
   script,
   studentId,
   standardId,
-  studentAge = 8,
   onComplete,
 }: InteractionRendererProps) {
+  const { ageGroup } = useProfile();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [attempts, setAttempts] = useState<AttemptResult[]>([]);
 
@@ -72,7 +72,7 @@ export function InteractionRenderer({
   const componentProps = {
     ...currentBlock.props,
     tts_text: currentBlock.tts_text,
-    studentAge,
+    ageGroup,
     onComplete: (result?: {
       correct: boolean;
       hint_used: boolean;

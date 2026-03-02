@@ -9,7 +9,7 @@ import {
   LayoutRectangle,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface SliderProps {
   instruction: string;
@@ -23,7 +23,7 @@ export interface SliderProps {
   max_label: string;
   unit?: string;
   hint_text?: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -43,10 +43,10 @@ export function Slider({
   max_label,
   unit = '',
   hint_text,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: SliderProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const effectiveTolerance = tolerance ?? step;
 
   const [canInteract, setCanInteract] = useState(false);

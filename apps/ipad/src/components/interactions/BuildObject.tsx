@@ -7,7 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface BuildPart {
   id: string;
@@ -27,7 +27,7 @@ export interface BuildObjectProps {
   parts: BuildPart[];
   slots: BuildSlot[];
   hint_text?: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -42,10 +42,10 @@ export function BuildObject({
   parts,
   slots,
   hint_text,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: BuildObjectProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const [canInteract, setCanInteract] = useState(false);
   const [selectedPartId, setSelectedPartId] = useState<string | null>(null);
   const [filledSlots, setFilledSlots] = useState<Record<string, string>>({}); // slotId → partId

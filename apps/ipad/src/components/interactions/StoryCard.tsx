@@ -7,14 +7,14 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface StoryCardProps {
   title: string;
   body: string;
   tts_text: string;
   continue_label?: string;
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: () => void;
 }
 
@@ -23,10 +23,10 @@ export function StoryCard({
   body,
   tts_text,
   continue_label = 'Continuar',
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: StoryCardProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const [canContinue, setCanContinue] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 

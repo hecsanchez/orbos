@@ -7,13 +7,13 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface ConfidenceCheckProps {
   question: string;
   tts_text: string;
   mode: 'pre' | 'post';
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: { confidence: 1 | 2 | 3 }) => void;
 }
 
@@ -27,11 +27,10 @@ export function ConfidenceCheck({
   question,
   tts_text,
   mode,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: ConfidenceCheckProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
-  const ageGroup = getAgeGroup(studentAge);
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const [canInteract, setCanInteract] = useState(false);
   const [selectedValue, setSelectedValue] = useState<1 | 2 | 3 | null>(null);
 

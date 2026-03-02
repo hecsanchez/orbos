@@ -8,13 +8,13 @@ import {
 } from 'react-native';
 import { Audio } from 'expo-av';
 import { tts } from '../../services/tts.service';
-import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
+import { AGE_THEME, type AgeGroup } from '../../utils/age-theme';
 
 export interface AudioExplainProps {
   prompt: string;
   tts_text: string;
   min_duration_seconds?: number; // minimum recording duration, default 3
-  studentAge?: number;
+  ageGroup?: AgeGroup;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -26,10 +26,10 @@ export function AudioExplain({
   prompt,
   tts_text,
   min_duration_seconds = 3,
-  studentAge = 8,
+  ageGroup = 'middle',
   onComplete,
 }: AudioExplainProps) {
-  const theme = AGE_THEME[getAgeGroup(studentAge)];
+  const theme = AGE_THEME[ageGroup ?? 'middle'];
   const [canInteract, setCanInteract] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [isRecording, setIsRecording] = useState(false);

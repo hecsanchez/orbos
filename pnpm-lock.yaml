@@ -409,6 +409,9 @@ importers:
       react-native-web:
         specifier: '*'
         version: 0.21.2(encoding@0.1.13)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      zustand:
+        specifier: ^5.0.11
+        version: 5.0.11(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4))
 
   apps/parent:
     dependencies:
@@ -11889,6 +11892,24 @@ packages:
 
   zod@4.3.6:
     resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+
+  zustand@5.0.11:
+    resolution: {integrity: sha512-fdZY+dk7zn/vbWNCYmzZULHRrss0jx5pPFiOuMZ/5HJN6Yv3u+1Wswy/4MpZEkEGhtNH+pwxZB8OKgUBPzYAGg==}
+    engines: {node: '>=12.20.0'}
+    peerDependencies:
+      '@types/react': '>=18.0.0'
+      immer: '>=9.0.6'
+      react: '>=18.0.0'
+      use-sync-external-store: '>=1.2.0'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+      use-sync-external-store:
+        optional: true
 
   zxing-wasm@3.0.0:
     resolution: {integrity: sha512-s7ASCPKX+QnH7Y83f4Byxmq/vDzYW7B9m6jMP5S30JGfN2A6WAUn6P3vcBmNguDhPLE6ny2fjTooQVyKBXI1qA==}
@@ -25540,6 +25561,12 @@ snapshots:
       zod: 4.3.6
 
   zod@4.3.6: {}
+
+  zustand@5.0.11(@types/react@19.2.14)(react@19.2.4)(use-sync-external-store@1.6.0(react@19.2.4)):
+    optionalDependencies:
+      '@types/react': 19.2.14
+      react: 19.2.4
+      use-sync-external-store: 1.6.0(react@19.2.4)
 
   zxing-wasm@3.0.0(@types/emscripten@1.41.5):
     dependencies:

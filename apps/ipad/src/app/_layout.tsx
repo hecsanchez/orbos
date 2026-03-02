@@ -4,6 +4,8 @@ import { View, Text, StyleSheet } from 'react-native';
 import { initDatabase } from '../db/sqlite';
 import { tts } from '../services/tts.service';
 import { SessionProvider } from '../context/session.context';
+import { ProfileProvider } from '../context/profile.context';
+import { useProfileStore } from '../stores/profile.store';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 
 export default function RootLayout() {
@@ -14,6 +16,7 @@ export default function RootLayout() {
     async function init() {
       try {
         await initDatabase();
+        await useProfileStore.getState().loadProfiles();
         await tts.speak('Hola');
         setReady(true);
       } catch (err) {
@@ -38,10 +41,12 @@ export default function RootLayout() {
   }
 
   return (
-    <SessionProvider>
-      <OfflineIndicator />
-      <Slot />
-    </SessionProvider>
+    <ProfileProvider>
+      <SessionProvider>
+        <OfflineIndicator />
+        <Slot />
+      </SessionProvider>
+    </ProfileProvider>
   );
 }
 
