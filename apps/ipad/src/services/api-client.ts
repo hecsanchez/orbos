@@ -6,7 +6,8 @@ import type {
   LogAttemptDto,
   AttemptResponseDto,
   MasteryResponseDto,
-  InteractionBlock,
+  EvidenceResponseDto,
+  PhenomenonResponseDto,
 } from '@orbos/types';
 
 const API_URL =
@@ -84,6 +85,24 @@ class ApiClient {
     standardId: string,
   ): Promise<MasteryResponseDto> {
     return this.request(`/mastery/${studentId}/${standardId}`);
+  }
+
+  async uploadEvidence(formData: FormData): Promise<EvidenceResponseDto> {
+    const response = await fetch(`${this.baseUrl}/evidence/upload`, {
+      method: 'POST',
+      body: formData,
+      // Don't set Content-Type — let fetch set multipart boundary
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error ${response.status}: ${await response.text()}`);
+    }
+
+    return response.json();
+  }
+
+  async getPhenomenon(id: string): Promise<PhenomenonResponseDto> {
+    return this.request(`/phenomena/${id}`);
   }
 }
 

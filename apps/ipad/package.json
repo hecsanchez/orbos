@@ -12,6 +12,8 @@
     "@react-native-community/netinfo": "^12.0.1",
     "@testing-library/react-native": "*",
     "expo": "*",
+    "expo-file-system": "^55.0.10",
+    "expo-image-picker": "^55.0.10",
     "expo-splash-screen": "*",
     "expo-status-bar": "*",
     "expo-system-ui": "*",
