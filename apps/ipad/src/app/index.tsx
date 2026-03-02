@@ -9,14 +9,18 @@ import {
 import { useRouter } from 'expo-router';
 import { tts } from '../services/tts.service';
 import { apiClient } from '../services/api-client';
+import { sessionEngine } from '../services/session.engine';
+import { useSession } from '../context/session.context';
 import type { StudentResponseDto } from '@orbos/types';
 
 const EMOJIS = ['🦋', '🚀', '🌟', '🐙', '🌈'];
 
 export default function ProfileSelector() {
   const router = useRouter();
+  const session = useSession();
   const [students, setStudents] = useState<StudentResponseDto[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingStudents, setLoadingStudents] = useState(true);
+  const [initError, setInitError] = useState<string | null>(null);
 
   useEffect(() => {
     tts.speak('Elige tu perfil para comenzar');
@@ -26,25 +30,52 @@ export default function ProfileSelector() {
       .then(setStudents)
       .catch((err) => {
         console.warn('Failed to fetch students, using fallback:', err);
-        // Fallback to hardcoded profiles matching seeded data
         setStudents([
           { id: '54fbe0d9', name: 'Ana', age: 5, grade_target: 1, interests: ['animales'] },
           { id: '937f13bc', name: 'Miguel', age: 8, grade_target: 3, interests: ['dinosaurios'] },
           { id: 'b07d2cc1', name: 'Sofia', age: 11, grade_target: 5, interests: ['naturaleza'] },
         ]);
       })
-      .finally(() => setLoading(false));
+      .finally(() => setLoadingStudents(false));
   }, []);
 
-  function handleSelect(student: StudentResponseDto) {
+  // Navigate to home when session is ready
+  useEffect(() => {
+    if (session.status === 'ready') {
+      router.push('/(session)/home');
+    }
+  }, [session.status, router]);
+
+  async function handleSelect(student: StudentResponseDto) {
     tts.stop();
-    router.push({
-      pathname: '/(session)/lesson',
-      params: { studentId: student.id, studentName: student.name, studentAge: String(student.age) },
-    });
+    setInitError(null);
+    try {
+      await sessionEngine.initialize(student);
+      // Navigation happens via the useEffect above
+    } catch (err) {
+      setInitError(
+        'No se pudo preparar la sesión. Verifica tu conexión a internet.',
+      );
+    }
   }
 
-  if (loading) {
+  // Loading / prefetch state
+  if (session.status === 'loading') {
+    const progress = session.prefetchProgress;
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#6C63FF" />
+        <Text style={styles.loadingText}>Preparando tu sesión...</Text>
+        {progress && progress.total > 0 && (
+          <Text style={styles.progressText}>
+            {progress.fetched}/{progress.total} lecciones
+          </Text>
+        )}
+      </View>
+    );
+  }
+
+  if (loadingStudents) {
     return (
       <View style={styles.container}>
         <ActivityIndicator size="large" color="#6C63FF" />
@@ -55,6 +86,11 @@ export default function ProfileSelector() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>¿Quién eres hoy?</Text>
+
+      {initError && (
+        <Text style={styles.errorText}>{initError}</Text>
+      )}
+
       <View style={styles.profiles}>
         {students.map((student, idx) => (
           <TouchableOpacity
@@ -116,5 +152,22 @@ const styles = StyleSheet.create({
   age: {
     fontSize: 18,
     color: '#666',
+  },
+  loadingText: {
+    fontSize: 20,
+    color: '#666',
+    marginTop: 16,
+  },
+  progressText: {
+    fontSize: 16,
+    color: '#999',
+    marginTop: 8,
+  },
+  errorText: {
+    fontSize: 16,
+    color: '#FF6B6B',
+    marginBottom: 24,
+    textAlign: 'center',
+    maxWidth: 400,
   },
 });

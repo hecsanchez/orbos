@@ -5,6 +5,9 @@ import { TapReveal } from './TapReveal';
 import { Ordering } from './Ordering';
 import { ConfidenceCheck } from './ConfidenceCheck';
 import { MatchConnect } from './MatchConnect';
+import { BuildObject } from './BuildObject';
+import { Slider } from './Slider';
+import { AudioExplain } from './AudioExplain';
 
 export const INTERACTION_COMPONENTS = {
   story_card: StoryCard,
@@ -14,6 +17,9 @@ export const INTERACTION_COMPONENTS = {
   ordering: Ordering,
   confidence_check: ConfidenceCheck,
   match_connect: MatchConnect,
+  build_object: BuildObject,
+  slider: Slider,
+  audio_explain: AudioExplain,
 } as const;
 
 export type ComponentName = keyof typeof INTERACTION_COMPONENTS;
@@ -25,3 +31,6 @@ export { TapReveal } from './TapReveal';
 export { Ordering } from './Ordering';
 export { ConfidenceCheck } from './ConfidenceCheck';
 export { MatchConnect } from './MatchConnect';
+export { BuildObject } from './BuildObject';
+export { Slider } from './Slider';
+export { AudioExplain } from './AudioExplain';

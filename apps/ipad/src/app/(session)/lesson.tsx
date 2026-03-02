@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -6,270 +6,191 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { tts } from '../../services/tts.service';
-import { apiClient } from '../../services/api-client';
-import { getDatabase } from '../../db/sqlite';
+import { sessionEngine } from '../../services/session.engine';
+import { useSession } from '../../context/session.context';
 import { InteractionRenderer } from '../../components/InteractionRenderer';
-import type {
-  InteractionBlock,
-  AttemptResult,
-  PlanItemDto,
-} from '@orbos/types';
+import type { InteractionBlock, AttemptResult } from '@orbos/types';
 
-type ScreenState =
-  | { kind: 'loading' }
-  | { kind: 'error'; message: string }
-  | { kind: 'lesson'; script: InteractionBlock[]; planItem: PlanItemDto }
-  | { kind: 'complete'; totalItems: number; correctCount: number };
+const BREAK_DURATION_SECONDS = 5 * 60; // 5 minutes
 
 export default function LessonScreen() {
-  const { studentId, studentName, studentAge } = useLocalSearchParams<{
-    studentId: string;
-    studentName: string;
-    studentAge: string;
-  }>();
   const router = useRouter();
-  const [state, setState] = useState<ScreenState>({ kind: 'loading' });
+  const session = useSession();
+  const student = session.student;
+  const currentItem = session.currentItem;
 
+  // Redirect if no active session
   useEffect(() => {
-    if (!studentId) {
-      setState({ kind: 'error', message: 'No se proporcionó un perfil de estudiante' });
-      return;
+    if (session.status === 'idle' || !student) {
+      router.replace('/');
     }
-    loadLessonScript();
-  }, [studentId]);
+  }, [session.status, student, router]);
 
-  async function loadLessonScript() {
-    try {
-      // 1. Fetch daily plan (try API first, fall back to SQLite cache)
-      let plan;
-      try {
-        plan = await apiClient.getDailyPlan(studentId!);
-
-        // Cache in SQLite
-        try {
-          const db = getDatabase();
-          const today = new Date().toISOString().slice(0, 10);
-          await db.runAsync(
-            `INSERT OR REPLACE INTO daily_plan (id, student_id, date, plan_json) VALUES (?, ?, ?, ?)`,
-            [`plan-${studentId}-${today}`, studentId!, today, JSON.stringify(plan)],
-          );
-        } catch {
-          // SQLite cache failure is non-fatal
-        }
-      } catch (apiErr) {
-        // Try SQLite cache
-        const db = getDatabase();
-        const today = new Date().toISOString().slice(0, 10);
-        const cached = await db.getFirstAsync<{ plan_json: string }>(
-          `SELECT plan_json FROM daily_plan WHERE student_id = ? AND date = ? LIMIT 1`,
-          [studentId!, today],
-        );
-        if (cached) {
-          plan = JSON.parse(cached.plan_json);
-        } else {
-          throw apiErr;
-        }
-      }
-
-      // 2. Find first lesson/practice item with a script
-      const lessonItem = plan.items.find(
-        (item: PlanItemDto) =>
-          (item.type === 'lesson' || item.type === 'practice') &&
-          item.lesson_script_id,
-      );
-
-      if (!lessonItem || !lessonItem.lesson_script_id) {
-        setState({
-          kind: 'error',
-          message: 'No hay lecciones disponibles en tu plan de hoy',
-        });
-        return;
-      }
-
-      // 3. Fetch the lesson script by ID (try API, fall back to SQLite)
-      let scriptResponse;
-      try {
-        scriptResponse = await apiClient.getLessonScriptById(
-          lessonItem.lesson_script_id,
-        );
-
-        // Cache in SQLite
-        try {
-          const db = getDatabase();
-          await db.runAsync(
-            `INSERT OR REPLACE INTO lesson_scripts (id, standard_id, student_age, script_json, safety_approved) VALUES (?, ?, ?, ?, ?)`,
-            [
-              scriptResponse.id,
-              scriptResponse.standard_id,
-              Number(studentAge) || 6,
-              JSON.stringify(scriptResponse.script),
-              scriptResponse.safety_approved ? 1 : 0,
-            ],
-          );
-        } catch {
-          // Cache failure is non-fatal
-        }
-      } catch {
-        // Try SQLite cache
-        const db = getDatabase();
-        const cached = await db.getFirstAsync<{ script_json: string }>(
-          `SELECT script_json FROM lesson_scripts WHERE id = ? LIMIT 1`,
-          [lessonItem.lesson_script_id],
-        );
-        if (cached) {
-          scriptResponse = { script: JSON.parse(cached.script_json) };
-        } else {
-          throw new Error('No se pudo cargar el guion de la lección');
-        }
-      }
-
-      const script = scriptResponse.script as InteractionBlock[];
-      if (!script || script.length === 0) {
-        setState({ kind: 'error', message: 'El guion de la lección está vacío' });
-        return;
-      }
-
-      setState({ kind: 'lesson', script, planItem: lessonItem });
-    } catch (err) {
-      console.error('Failed to load lesson:', err);
-      setState({
-        kind: 'error',
-        message: `Error cargando la lección: ${err instanceof Error ? err.message : String(err)}`,
-      });
+  // Navigate to complete screen when session ends
+  useEffect(() => {
+    if (session.status === 'complete') {
+      router.replace('/(session)/complete');
     }
-  }
+  }, [session.status, router]);
 
-  const handleComplete = useCallback(
-    async (attempts: AttemptResult[]) => {
-      if (state.kind !== 'lesson') return;
-
-      const correctCount = attempts.filter((a) => a.correct).length;
-
-      // Log each attempt to the API (or queue to SQLite)
-      for (const attempt of attempts) {
-        try {
-          await apiClient.logAttempt({
-            student_id: studentId!,
-            standard_id: state.planItem.standard_id,
-            interaction_component: attempt.component,
-            correct: attempt.correct,
-            time_spent_seconds: attempt.time_spent_seconds,
-            hint_used: attempt.hint_used,
-            source: state.planItem.type === 'practice' ? 'lesson' : 'lesson',
-          });
-        } catch {
-          // Queue to SQLite for later sync
-          try {
-            const db = getDatabase();
-            const id = `attempt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-            await db.runAsync(
-              `INSERT INTO attempt_queue (id, student_id, standard_id, interaction_component, correct, time_spent_seconds, hint_used, source, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-              [
-                id,
-                studentId!,
-                state.planItem.standard_id,
-                attempt.component,
-                attempt.correct ? 1 : 0,
-                attempt.time_spent_seconds,
-                attempt.hint_used ? 1 : 0,
-                'lesson',
-                new Date().toISOString(),
-              ],
-            );
-          } catch {
-            console.error('Failed to queue attempt to SQLite');
-          }
-        }
-      }
-
-      setState({
-        kind: 'complete',
-        totalItems: attempts.length,
-        correctCount,
-      });
-    },
-    [state, studentId],
-  );
-
-  // ── Render based on state ──────────────────────
-
-  if (state.kind === 'loading') {
+  if (!student || !currentItem) {
     return (
       <View style={styles.center}>
         <ActivityIndicator size="large" color="#6C63FF" />
-        <Text style={styles.loadingText}>Preparando tu lección...</Text>
       </View>
     );
   }
 
-  if (state.kind === 'error') {
+  if (currentItem.type === 'break') {
+    return <BreakScreen onComplete={() => sessionEngine.advance()} />;
+  }
+
+  if (currentItem.type === 'phenomenon_evidence') {
+    router.push('/(session)/evidence');
+    return null;
+  }
+
+  // lesson or practice
+  return (
+    <LessonItem
+      key={`item-${session.currentItemIndex}`}
+      studentId={student.id}
+      studentAge={student.age}
+      standardId={currentItem.standard_id}
+      lessonScriptId={currentItem.lesson_script_id}
+    />
+  );
+}
+
+// ── Lesson/Practice Item ──────────────────────────
+
+function LessonItem({
+  studentId,
+  studentAge,
+  standardId,
+  lessonScriptId,
+}: {
+  studentId: string;
+  studentAge: number;
+  standardId: string;
+  lessonScriptId?: string;
+}) {
+  const [script, setScript] = useState<InteractionBlock[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!lessonScriptId) {
+      setError('Este bloque no tiene un guion asignado');
+      return;
+    }
+    sessionEngine
+      .getCurrentScript()
+      .then((res) => {
+        const blocks = res.script as InteractionBlock[];
+        if (!blocks || blocks.length === 0) {
+          setError('El guion de la lección está vacío');
+        } else {
+          setScript(blocks);
+        }
+      })
+      .catch((err) => {
+        setError(err instanceof Error ? err.message : 'Error cargando el guion');
+      });
+  }, [lessonScriptId]);
+
+  const handleComplete = useCallback(
+    async (attempts: AttemptResult[]) => {
+      await sessionEngine.completeCurrentItem(attempts);
+      sessionEngine.advance();
+    },
+    [],
+  );
+
+  if (error) {
     return (
       <View style={styles.center}>
         <Text style={styles.errorEmoji}>😕</Text>
-        <Text style={styles.errorText}>{state.message}</Text>
+        <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity
-          style={styles.retryButton}
-          onPress={() => {
-            setState({ kind: 'loading' });
-            loadLessonScript();
-          }}
+          style={styles.skipButton}
+          onPress={() => sessionEngine.advance()}
         >
-          <Text style={styles.retryText}>Reintentar</Text>
+          <Text style={styles.skipText}>Continuar →</Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  if (state.kind === 'complete') {
-    return <CompletionScreen totalItems={state.totalItems} correctCount={state.correctCount} onClose={() => router.back()} />;
+  if (!script) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" color="#6C63FF" />
+        <Text style={styles.loadingText}>Cargando lección...</Text>
+      </View>
+    );
   }
 
   return (
     <InteractionRenderer
-      script={state.script}
-      studentId={studentId!}
-      standardId={state.planItem.standard_id}
-      studentAge={Number(studentAge) || 8}
+      script={script}
+      studentId={studentId}
+      standardId={standardId}
+      studentAge={studentAge}
       onComplete={handleComplete}
     />
   );
 }
 
-// ── Completion Sub-screen ─────────────────────────
+// ── Break Screen ──────────────────────────────────
 
-function CompletionScreen({
-  totalItems,
-  correctCount,
-  onClose,
-}: {
-  totalItems: number;
-  correctCount: number;
-  onClose: () => void;
-}) {
+function BreakScreen({ onComplete }: { onComplete: () => void }) {
+  const [secondsLeft, setSecondsLeft] = useState(BREAK_DURATION_SECONDS);
+
   useEffect(() => {
-    tts.speak('¡Buen trabajo hoy! Terminaste tus bloques de aprendizaje.');
+    tts.speak('Toma un descanso. Relaja tu mente y cuerpo por unos minutos.');
+    return () => tts.stop();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const minutes = Math.floor(secondsLeft / 60);
+  const seconds = secondsLeft % 60;
+  const canContinue = secondsLeft === 0;
+
   return (
-    <View style={styles.completionContainer}>
-      <Text style={styles.completionTitle}>¡Buen trabajo hoy!</Text>
-      <Text style={styles.completionSubtitle}>
-        Terminaste tus bloques de aprendizaje.{'\n'}Tu mente creció un poco más.
+    <View style={styles.breakContainer}>
+      <Text style={styles.breakEmoji}>😴</Text>
+      <Text style={styles.breakTitle}>Toma un descanso</Text>
+      <Text style={styles.breakSubtitle}>
+        Relaja tu mente y cuerpo por unos minutos.
       </Text>
-      <View style={styles.statsRow}>
-        <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{totalItems}</Text>
-          <Text style={styles.statLabel}>Bloques completados</Text>
-        </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statNumber}>{correctCount}</Text>
-          <Text style={styles.statLabel}>Respuestas correctas</Text>
-        </View>
+      <View style={styles.timerCircle}>
+        <Text style={styles.timerText}>
+          {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+        </Text>
+        <Text style={styles.timerLabel}>minutos</Text>
       </View>
-      <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-        <Text style={styles.closeButtonText}>Cerrar sesión por hoy →</Text>
+      <TouchableOpacity
+        style={[styles.continueButton, !canContinue && styles.continueButtonDisabled]}
+        onPress={canContinue ? onComplete : undefined}
+        disabled={!canContinue}
+      >
+        <Text style={styles.continueButtonText}>
+          {canContinue ? 'Continuar →' : 'Respira profundo...'}
+        </Text>
       </TouchableOpacity>
     </View>
   );
@@ -301,72 +222,74 @@ const styles = StyleSheet.create({
     maxWidth: 500,
     lineHeight: 32,
   },
-  retryButton: {
+  skipButton: {
     marginTop: 24,
     paddingVertical: 14,
     paddingHorizontal: 36,
     backgroundColor: '#6C63FF',
     borderRadius: 14,
   },
-  retryText: {
+  skipText: {
     fontSize: 18,
     color: '#FFF',
     fontWeight: '600',
   },
-  completionContainer: {
+  // ── Break styles
+  breakContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F0FFF4',
+    backgroundColor: '#F5F7FA',
     padding: 40,
   },
-  completionTitle: {
+  breakEmoji: {
+    fontSize: 80,
+    marginBottom: 24,
+  },
+  breakTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#1A1A2E',
+    marginBottom: 12,
+  },
+  breakSubtitle: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 40,
+    textAlign: 'center',
+  },
+  timerCircle: {
+    width: 160,
+    height: 160,
+    borderRadius: 80,
+    borderWidth: 4,
+    borderColor: '#6C63FF',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  timerText: {
     fontSize: 36,
     fontWeight: '700',
     color: '#1A1A2E',
-    marginBottom: 16,
   },
-  completionSubtitle: {
-    fontSize: 20,
-    color: '#555',
-    textAlign: 'center',
-    lineHeight: 30,
-    marginBottom: 40,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 32,
-    marginBottom: 48,
-  },
-  statBox: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    padding: 24,
-    alignItems: 'center',
-    minWidth: 160,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  statNumber: {
-    fontSize: 36,
-    fontWeight: '700',
-    color: '#34C759',
-  },
-  statLabel: {
+  timerLabel: {
     fontSize: 14,
-    color: '#888',
-    marginTop: 4,
+    color: '#999',
+    marginTop: 2,
   },
-  closeButton: {
+  continueButton: {
     backgroundColor: '#1A1A2E',
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 48,
+    minWidth: 280,
+    alignItems: 'center',
   },
-  closeButtonText: {
+  continueButtonDisabled: {
+    backgroundColor: '#CCC',
+  },
+  continueButtonText: {
     color: '#FFFFFF',
     fontSize: 20,
     fontWeight: '600',

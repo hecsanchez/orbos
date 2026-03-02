@@ -3,6 +3,8 @@ import { Slot } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { initDatabase } from '../db/sqlite';
 import { tts } from '../services/tts.service';
+import { SessionProvider } from '../context/session.context';
+import { OfflineIndicator } from '../components/OfflineIndicator';
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -35,7 +37,12 @@ export default function RootLayout() {
     console.warn('Init warning:', error);
   }
 
-  return <Slot />;
+  return (
+    <SessionProvider>
+      <OfflineIndicator />
+      <Slot />
+    </SessionProvider>
+  );
 }
 
 const styles = StyleSheet.create({

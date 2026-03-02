@@ -2,7 +2,10 @@
   "name": "@orbos/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "test:e2e:ipad:build": "detox build --configuration ios.sim.debug",
+    "test:e2e:ipad": "detox test --configuration ios.sim.debug"
+  },
   "private": true,
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -41,6 +44,7 @@
   },
   "devDependencies": {
     "@babel/runtime": "~7.27.6",
+    "@config-plugins/detox": "^11.0.0",
     "@eslint/js": "^9.8.0",
     "@expo/cli": "~54.0.16",
     "@nestjs/schematics": "^11.0.0",
@@ -76,6 +80,7 @@
     "babel-jest": "^30.0.2",
     "babel-preset-expo": "~54.0.7",
     "cypress": "^15.8.0",
+    "detox": "^20.47.0",
     "eslint": "^9.8.0",
     "eslint-config-next": "^16.0.1",
     "eslint-config-prettier": "^10.0.0",
@@ -91,6 +96,7 @@
     "jest-util": "^30.0.2",
     "metro-config": "~0.83.0",
     "metro-resolver": "~0.83.0",
+    "msw": "^2.12.10",
     "nx": "22.5.3",
     "postcss": "8.4.38",
     "prettier": "~3.6.2",

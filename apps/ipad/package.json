@@ -9,6 +9,7 @@
   "dependencies": {
     "@expo/metro-config": "*",
     "@orbos/types": "workspace:*",
+    "@react-native-community/netinfo": "^12.0.1",
     "@testing-library/react-native": "*",
     "expo": "*",
     "expo-splash-screen": "*",

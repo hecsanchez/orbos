@@ -20,6 +20,7 @@ export interface InteractionRendererProps {
   onComplete: (attempts: AttemptResult[]) => void;
 }
 
+
 export function InteractionRenderer({
   script,
   studentId,
