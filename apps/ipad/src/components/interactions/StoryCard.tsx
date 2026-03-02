@@ -7,12 +7,14 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
+import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
 
 export interface StoryCardProps {
   title: string;
   body: string;
   tts_text: string;
   continue_label?: string;
+  studentAge?: number;
   onComplete: () => void;
 }
 
@@ -21,8 +23,10 @@ export function StoryCard({
   body,
   tts_text,
   continue_label = 'Continuar',
+  studentAge = 8,
   onComplete,
 }: StoryCardProps) {
+  const theme = AGE_THEME[getAgeGroup(studentAge)];
   const [canContinue, setCanContinue] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
@@ -64,8 +68,8 @@ export function StoryCard({
       disabled={!canContinue}
     >
       <View style={styles.card}>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.body}>{body}</Text>
+        <Text style={[styles.title, { fontSize: theme.fontSize.instruction }]}>{title}</Text>
+        <Text style={[styles.body, { fontSize: theme.fontSize.body }]}>{body}</Text>
 
         <Animated.View style={[styles.buttonWrap, { opacity: fadeAnim }]}>
           <View
@@ -74,8 +78,8 @@ export function StoryCard({
               !canContinue && styles.buttonDisabled,
             ]}
           >
-            <Text style={styles.buttonText}>
-              {continue_label} &rarr;
+            <Text style={[styles.buttonText, { fontSize: theme.fontSize.button }]}>
+              {continue_label} →
             </Text>
           </View>
         </Animated.View>

@@ -7,6 +7,7 @@ import {
   Animated,
 } from 'react-native';
 import { tts } from '../../services/tts.service';
+import { getAgeGroup, AGE_THEME } from '../../utils/age-theme';
 
 export interface MultipleChoiceOption {
   id: string;
@@ -19,6 +20,7 @@ export interface MultipleChoiceProps {
   tts_text: string;
   options: MultipleChoiceOption[];
   hint_text?: string;
+  studentAge?: number;
   onComplete: (result: {
     correct: boolean;
     hint_used: boolean;
@@ -40,8 +42,10 @@ export function MultipleChoice({
   tts_text,
   options,
   hint_text,
+  studentAge = 8,
   onComplete,
 }: MultipleChoiceProps) {
+  const theme = AGE_THEME[getAgeGroup(studentAge)];
   const [shuffledOptions] = useState(() => shuffleArray(options));
   const [canInteract, setCanInteract] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -147,7 +151,7 @@ export function MultipleChoice({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.question}>{question}</Text>
+      <Text style={[styles.question, { fontSize: theme.fontSize.instruction }]}>{question}</Text>
 
       <View style={styles.optionsGrid}>
         {shuffledOptions.map((option) => {
@@ -166,7 +170,7 @@ export function MultipleChoice({
                 disabled={!canInteract || answeredCorrectly || waitingForEncouragement}
                 activeOpacity={0.7}
               >
-                <Text style={styles.optionLabel}>{option.label}</Text>
+                <Text style={[styles.optionLabel, { fontSize: theme.fontSize.body }]}>{option.label}</Text>
               </TouchableOpacity>
             </Animated.View>
           );

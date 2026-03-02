@@ -16,6 +16,7 @@ export interface InteractionRendererProps {
   script: InteractionBlock[];
   studentId: string;
   standardId: string;
+  studentAge?: number;
   onComplete: (attempts: AttemptResult[]) => void;
 }
 
@@ -23,6 +24,7 @@ export function InteractionRenderer({
   script,
   studentId,
   standardId,
+  studentAge = 8,
   onComplete,
 }: InteractionRendererProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -69,6 +71,7 @@ export function InteractionRenderer({
   const componentProps = {
     ...currentBlock.props,
     tts_text: currentBlock.tts_text,
+    studentAge,
     onComplete: (result?: {
       correct: boolean;
       hint_used: boolean;

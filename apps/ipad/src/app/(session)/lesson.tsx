@@ -231,6 +231,7 @@ export default function LessonScreen() {
       script={state.script}
       studentId={studentId!}
       standardId={state.planItem.standard_id}
+      studentAge={Number(studentAge) || 8}
       onComplete={handleComplete}
     />
   );
