@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { and, eq } from 'drizzle-orm';
 import { db } from '../db';
-import { attempts } from '../db/schema';
+import { attempts, dailyPlans } from '../db/schema';
 import { MasteryEstimatorAgent } from '../agents/mastery/mastery-estimator.agent';
 import type { MasteryEstimate } from '../agents/mastery/mastery-estimator.agent';
 import { LogAttemptDto } from './dto/log-attempt.dto';
@@ -43,7 +43,18 @@ export class AttemptsService {
       )
       .orderBy(attempts.createdAt);
 
-    // 3. Call MasteryEstimatorAgent.estimate()
+    // 3. Invalidate today's cached daily plan so orchestrator re-plans
+    const today = new Date().toISOString().split('T')[0];
+    await db
+      .delete(dailyPlans)
+      .where(
+        and(
+          eq(dailyPlans.studentId, dto.student_id),
+          eq(dailyPlans.date, today),
+        ),
+      );
+
+    // 4. Call MasteryEstimatorAgent.estimate()
     const mastery = await this.masteryEstimator.estimate({
       student_id: dto.student_id,
       standard_id: dto.standard_id,
@@ -55,7 +66,7 @@ export class AttemptsService {
       })),
     });
 
-    // 4. Return the logged attempt with mastery
+    // 5. Return the logged attempt with mastery
     const attempt: AttemptResponseDto = {
       id: inserted.id,
       student_id: inserted.studentId,

@@ -131,7 +131,7 @@ export class OrchestratorAgent {
     items = this.trimToFit(items, availableMinutes);
 
     // 11. Pre-fetch lesson scripts
-    items = await this.prefetchScripts(items, student);
+    items = await this.prefetchScripts(items, student, masteryMap);
 
     const totalMinutes = items.reduce((sum, i) => sum + i.estimated_minutes, 0);
 
@@ -387,6 +387,7 @@ export class OrchestratorAgent {
   private async prefetchScripts(
     items: DailyPlanItem[],
     student: StudentProfile,
+    masteryMap: Map<string, MasteryRecord>,
   ): Promise<DailyPlanItem[]> {
     const result: DailyPlanItem[] = [];
 
@@ -423,9 +424,10 @@ export class OrchestratorAgent {
           });
           result.push({ ...item, lesson_script_id: generated.id });
         } else {
+          const mastery = masteryMap.get(item.standard_id);
           const generated = await this.practiceGenerator.generate({
             standard_id: item.standard_id,
-            mastery_level: 0.5,
+            mastery_level: mastery?.mastery_level ?? 0.5,
             student_age: student.age,
           });
           result.push({ ...item, lesson_script_id: generated.id });
