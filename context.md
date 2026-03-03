@@ -141,6 +141,7 @@ These decisions are final. Do not deviate. Flag concerns — do not silently wor
 
 ---
 
+
 ## 7. Agent Architecture
 
 All agents: TypeScript classes, single Node.js app, stateless. State lives in PostgreSQL, passed in per call. All LLM calls via LLMClient only.

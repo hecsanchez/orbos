@@ -1,3 +1,5 @@
+
+
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig(() => ({
@@ -5,6 +7,7 @@ export default defineConfig(() => ({
   test: {
     name: 'api',
     watch: false,
+
     globals: true,
     environment: 'node',
     include: ['{src,tests}/**/*.{test,spec}.{js,ts}'],
