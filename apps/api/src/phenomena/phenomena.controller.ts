@@ -5,12 +5,13 @@ import {
   Get,
   Param,
   Body,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { eq } from 'drizzle-orm';
 import { db } from '../db';
-import { phenomenonProposals } from '../db/schema';
+import { phenomenonProposals, students } from '../db/schema';
 import { ProposePhenomenonDto } from './dto/propose-phenomenon.dto';
 import { ApprovePhenomenonDto } from './dto/approve-phenomenon.dto';
 import { PhenomenonResponseDto } from './dto/phenomenon-response.dto';
@@ -19,6 +20,8 @@ import { PhenomenonDesignerAgent } from '../agents/phenomenon/phenomenon-designe
 @ApiTags('phenomena')
 @Controller('phenomena')
 export class PhenomenaController {
+  private readonly logger = new Logger(PhenomenaController.name);
+
   constructor(private readonly designer: PhenomenonDesignerAgent) {}
 
   @Post('propose')
@@ -27,6 +30,84 @@ export class PhenomenaController {
     @Body() dto: ProposePhenomenonDto,
   ): Promise<PhenomenonResponseDto[]> {
     return this.designer.propose(dto.student_id);
+  }
+
+  @Post('batch-propose')
+  @ApiOperation({
+    summary: 'Generate phenomenon proposals for all students',
+  })
+  async batchPropose(): Promise<{
+    total_students: number;
+    total_proposals: number;
+    results: { student_id: string; student_name: string; proposals: number; error?: string }[];
+  }> {
+    const allStudents = await db.select().from(students);
+    const results: { student_id: string; student_name: string; proposals: number; error?: string }[] = [];
+
+    for (const student of allStudents) {
+      try {
+        const proposals = await this.designer.propose(student.id);
+        results.push({
+          student_id: student.id,
+          student_name: student.name,
+          proposals: proposals.length,
+        });
+        this.logger.log(
+          `Generated ${proposals.length} proposals for ${student.name}`,
+        );
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        results.push({
+          student_id: student.id,
+          student_name: student.name,
+          proposals: 0,
+          error: message,
+        });
+        this.logger.error(
+          `Failed to generate proposals for ${student.name}: ${message}`,
+        );
+      }
+    }
+
+    return {
+      total_students: allStudents.length,
+      total_proposals: results.reduce((sum, r) => sum + r.proposals, 0),
+      results,
+    };
+  }
+
+  @Put('batch-approve')
+  @ApiOperation({
+    summary: 'Approve all pending phenomenon proposals',
+  })
+  async batchApprove(
+    @Body() dto: ApprovePhenomenonDto,
+  ): Promise<{ approved_count: number; proposals: PhenomenonResponseDto[] }> {
+    const updated = await db
+      .update(phenomenonProposals)
+      .set({
+        status: 'approved',
+        approvedBy: dto.approved_by,
+        approvedAt: new Date(),
+      })
+      .where(eq(phenomenonProposals.status, 'pending'))
+      .returning();
+
+    return {
+      approved_count: updated.length,
+      proposals: updated.map((r) => ({
+        id: r.id,
+        student_id: r.studentId,
+        linked_standards: (r.linkedStandards as string[]) ?? [],
+        title: r.title,
+        facilitation_guide: r.facilitationGuide,
+        evidence_prompt: r.evidencePrompt,
+        materials_needed: (r.materialsNeeded as string[]) ?? [],
+        status: r.status,
+        approved_by: r.approvedBy ?? null,
+        approved_at: r.approvedAt?.toISOString() ?? null,
+      })),
+    };
   }
 
   @Put(':id/approve')

@@ -81,3 +81,25 @@ export function getStandards(filters?: {
   const qs = filters?.grade ? `?grade=${filters.grade}` : '';
   return request(`/standards${qs}`);
 }
+
+export function batchProposePhenomena(): Promise<{
+  total_students: number;
+  total_proposals: number;
+  results: {
+    student_id: string;
+    student_name: string;
+    proposals: number;
+    error?: string;
+  }[];
+}> {
+  return request('/phenomena/batch-propose', { method: 'POST' });
+}
+
+export function batchApprovePhenomena(
+  approvedBy: string,
+): Promise<{ approved_count: number; proposals: PhenomenonResponseDto[] }> {
+  return request('/phenomena/batch-approve', {
+    method: 'PUT',
+    body: JSON.stringify({ approved_by: approvedBy }),
+  });
+}

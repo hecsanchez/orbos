@@ -6,6 +6,8 @@ import {
   getStudents,
   getPhenomenaForStudent,
   approvePhenomenon,
+  batchProposePhenomena,
+  batchApprovePhenomena,
 } from '../../lib/api';
 import { StatusBadge } from '../../components/StatusBadge';
 import { FacilitationGuidePreview } from '../../components/FacilitationGuidePreview';
@@ -17,6 +19,8 @@ export default function PhenomenaPage() {
   >({});
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [approving, setApproving] = useState(false);
 
   const fetchAll = async () => {
     try {
@@ -49,6 +53,32 @@ export default function PhenomenaPage() {
     fetchAll();
   };
 
+  const handleBatchGenerate = async () => {
+    setGenerating(true);
+    try {
+      await batchProposePhenomena();
+      await fetchAll();
+    } catch {
+      // fail silently
+    }
+    setGenerating(false);
+  };
+
+  const handleBatchApprove = async () => {
+    setApproving(true);
+    try {
+      await batchApprovePhenomena('studio-admin');
+      await fetchAll();
+    } catch {
+      // fail silently
+    }
+    setApproving(false);
+  };
+
+  const pendingCount = Object.values(phenomenaByStudent)
+    .flat()
+    .filter((p) => p.status === 'pending').length;
+
   if (loading) {
     return (
       <div className="p-8">
@@ -60,7 +90,29 @@ export default function PhenomenaPage() {
 
   return (
     <div className="p-8">
-      <h1 className="text-2xl font-bold mb-6">Fenómenos</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Fenómenos</h1>
+        <div className="flex gap-3">
+          <button
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            onClick={handleBatchGenerate}
+            disabled={generating}
+          >
+            {generating ? 'Generando...' : 'Generar para todos'}
+          </button>
+          {pendingCount > 0 && (
+            <button
+              className="px-4 py-2 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+              onClick={handleBatchApprove}
+              disabled={approving}
+            >
+              {approving
+                ? 'Aprobando...'
+                : `Aprobar todos (${pendingCount})`}
+            </button>
+          )}
+        </div>
+      </div>
 
       {students.map((student) => {
         const phenomena = phenomenaByStudent[student.id] ?? [];
@@ -118,9 +170,30 @@ export default function PhenomenaPage() {
                           <h4 className="text-sm font-semibold text-gray-700">
                             Prompt de evidencia
                           </h4>
-                          <p className="text-sm text-gray-600">
-                            {p.evidence_prompt}
-                          </p>
+                          {(() => {
+                            try {
+                              const ep =
+                                typeof p.evidence_prompt === 'string'
+                                  ? JSON.parse(p.evidence_prompt)
+                                  : p.evidence_prompt;
+                              return (
+                                <div className="text-sm text-gray-600 space-y-1">
+                                  <p>{ep.instruction_text}</p>
+                                  {ep.capture_type && (
+                                    <span className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs">
+                                      {ep.capture_type}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            } catch {
+                              return (
+                                <p className="text-sm text-gray-600">
+                                  {String(p.evidence_prompt)}
+                                </p>
+                              );
+                            }
+                          })()}
                         </div>
                       )}
                       {p.materials_needed.length > 0 && (
