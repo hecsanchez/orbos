@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
+    "dev": "docker compose up -d && pnpm exec nx run-many --targets=serve,dev,start --projects=@orbos/api,@orbos/parent,@orbos/studio,@orbos/ipad --parallel=4",
+    "dev:api": "docker compose up -d && pnpm exec nx run api:serve",
+    "dev:web": "pnpm exec nx run-many --targets=dev --projects=@orbos/parent,@orbos/studio --parallel=2",
+    "dev:ipad": "pnpm exec nx run ipad:start",
+    "db:push": "cd apps/api && npx drizzle-kit push",
+    "db:seed": "pnpm exec nx run api:seed-embeddings && pnpm exec nx run api:seed-students && npx tsx apps/api/src/db/seeds/seed-pilot-phenomena.ts",
+    "db:setup": "pnpm run db:push && pnpm run db:seed",
     "test:e2e:ipad:build": "detox build --configuration ios.sim.debug",
     "test:e2e:ipad": "detox test --configuration ios.sim.debug"
   },
