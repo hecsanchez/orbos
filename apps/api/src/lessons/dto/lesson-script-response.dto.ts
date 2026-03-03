@@ -2,17 +2,17 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LessonScriptResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty({ example: 'SEP-MAT-1-1.1' })
-  standard_id: string;
+  standard_id!: string;
 
   @ApiProperty({ type: [Object] })
-  script: unknown[];
+  script!: unknown[];
 
   @ApiProperty()
-  safety_approved: boolean;
+  safety_approved!: boolean;
 
   @ApiProperty()
-  admin_approved: boolean;
+  admin_approved!: boolean;
 }

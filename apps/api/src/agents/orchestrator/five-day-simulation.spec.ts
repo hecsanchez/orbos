@@ -7,9 +7,8 @@
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OrchestratorAgent } from './orchestrator.agent';
-import type { DailyPlanItem } from './orchestrator.agent';
 import { MasteryEstimatorAgent } from '../mastery/mastery-estimator.agent';
-import type { AttemptInput, MasteryEstimate } from '../mastery/mastery-estimator.agent';
+import type { AttemptInput } from '../mastery/mastery-estimator.agent';
 
 // ── Mock DB ──────────────────────────────────────────
 
@@ -250,7 +249,8 @@ describe('Five-Day Simulated Week', () => {
 
           // === STEP 3: Simulate attempts on each item ===
           for (const item of lessonPracticeItems) {
-            const newAttempts = simulateAttempts(day, item.standard_id, item.type);
+            const itemType = item.type as 'lesson' | 'practice';
+            const newAttempts = simulateAttempts(day, item.standard_id, itemType);
             const existingAttempts = attemptHistory.get(item.standard_id)!;
             existingAttempts.push(...newAttempts);
           }
@@ -273,7 +273,7 @@ describe('Five-Day Simulated Week', () => {
         expect(standardsWithMastery.length).toBeGreaterThan(0);
 
         // 2. Mastery should generally trend upward (non-decreasing trend over 5 days)
-        for (const [standardId, levels] of masteryHistory.entries()) {
+        for (const [, levels] of masteryHistory.entries()) {
           if (levels.length < 2) continue;
           // The final mastery should be higher than the first
           expect(levels[levels.length - 1]).toBeGreaterThanOrEqual(levels[0]);

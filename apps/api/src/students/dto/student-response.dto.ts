@@ -2,17 +2,17 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class StudentResponseDto {
   @ApiProperty()
-  id: string;
+  id!: string;
 
   @ApiProperty()
-  name: string;
+  name!: string;
 
   @ApiProperty()
-  age: number;
+  age!: number;
 
   @ApiProperty()
-  grade_target: number;
+  grade_target!: number;
 
   @ApiProperty({ type: [String] })
-  interests: string[];
+  interests!: string[];
 }

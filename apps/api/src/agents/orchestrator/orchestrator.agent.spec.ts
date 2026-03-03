@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OrchestratorAgent } from './orchestrator.agent';
-import type { DailyPlan } from './orchestrator.agent';
 
 // ── Mocks ────────────────────────────────────────────
 

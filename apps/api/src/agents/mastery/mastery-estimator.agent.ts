@@ -2,7 +2,6 @@
 // implementation when ready. Interface must remain identical.
 
 import { Injectable, Logger } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
 import { db } from '../../db';
 import { masteryState } from '../../db/schema';
 

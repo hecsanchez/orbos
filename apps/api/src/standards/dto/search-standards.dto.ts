@@ -5,7 +5,7 @@ import { Type } from 'class-transformer';
 export class SearchStandardsDto {
   @ApiProperty({ example: 'suma de números' })
   @IsString()
-  query: string;
+  query!: string;
 
   @ApiPropertyOptional({ example: 3, minimum: 1, maximum: 6 })
   @IsOptional()

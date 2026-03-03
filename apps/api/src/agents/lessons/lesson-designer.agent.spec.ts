@@ -100,7 +100,7 @@ describe('LessonDesignerAgent', () => {
     vi.clearAllMocks();
 
     // Reset the db mock chain for each test
-    const { db } = await import('../../db');
+    const { db } = await import('../../db/index.js');
 
     const mockLimit = vi.fn();
     const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });
@@ -197,7 +197,7 @@ describe('LessonDesignerAgent', () => {
   });
 
   it('throws NotFoundException for unknown standard_id', async () => {
-    const { db } = await import('../../db');
+    const { db } = await import('../../db/index.js');
     const mockLimit = vi.fn().mockResolvedValue([]);
     const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });
     const mockFrom = vi.fn().mockReturnValue({ where: mockWhere });
@@ -210,7 +210,7 @@ describe('LessonDesignerAgent', () => {
 
   it('script is saved to DB after safety approval', async () => {
     const script = validGeneratedScript();
-    const { db } = await import('../../db');
+    const { db } = await import('../../db/index.js');
 
     mockEmbeddings.search.mockResolvedValue([]);
     mockPromptService.getTemplate.mockResolvedValue('template');

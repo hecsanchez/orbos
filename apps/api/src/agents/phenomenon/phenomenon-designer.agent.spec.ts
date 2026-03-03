@@ -119,7 +119,7 @@ describe('PhenomenonDesignerAgent', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    const { db } = await import('../../db');
+    const { db } = await import('../../db/index.js');
 
     // Student select chain
     const mockStudentLimit = vi.fn().mockResolvedValue([fakeStudent]);
@@ -191,12 +191,12 @@ describe('PhenomenonDesignerAgent', () => {
     expect(results[0].student_id).toBe(fakeStudent.id);
     expect(results[0].approved_by).toBeNull();
 
-    const { db } = await import('../../db');
+    const { db } = await import('../../db/index.js');
     expect(db.insert).toHaveBeenCalledTimes(3);
   });
 
   it('throws NotFoundException for unknown student', async () => {
-    const { db } = await import('../../db');
+    const { db } = await import('../../db/index.js');
 
     const mockLimit = vi.fn().mockResolvedValue([]);
     const mockWhere = vi.fn().mockReturnValue({ limit: mockLimit });

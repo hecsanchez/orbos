@@ -5,5 +5,5 @@ export class ApprovePhenomenonDto {
   @ApiProperty({ example: 'teacher@school.mx' })
   @IsString()
   @MinLength(1)
-  approved_by: string;
+  approved_by!: string;
 }

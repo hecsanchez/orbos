@@ -2,20 +2,20 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class StandardResponseDto {
   @ApiProperty({ example: 'SEP-MAT-1-1.1' })
-  id: string;
+  id!: string;
 
   @ApiProperty({ example: 1 })
-  grade: number;
+  grade!: number;
 
   @ApiProperty({ example: 'Matematicas' })
-  subject: string;
+  subject!: string;
 
   @ApiPropertyOptional({ example: 'Estudio de los números' })
-  topic: string | null;
+  topic!: string | null;
 
   @ApiProperty()
-  description: string;
+  description!: string;
 
   @ApiProperty({ type: [String] })
-  prerequisites: string[];
+  prerequisites!: string[];
 }
